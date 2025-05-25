@@ -7,7 +7,17 @@ import re
 from services.calorie import calculate_nutrition
 from services.recommender import recommend_snacks
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 또는 클라이언트 도메인만 지정
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ===== 데이터 모델 =====
 class Goal(BaseModel):
