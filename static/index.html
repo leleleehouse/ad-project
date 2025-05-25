@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>다이어트 보조 시스템</title>
+</head>
+<body>
+  <h1>🎯 목표 설정</h1>
+  <form id="goalForm">
+    현재 체중: <input type="number" name="current_weight" required><br>
+    목표 체중: <input type="number" name="target_weight" required><br>
+    기간(일): <input type="number" name="period_days" required><br>
+    활동량: 
+    <select name="activity_level">
+      <option value="low">낮음</option>
+      <option value="medium" selected>보통</option>
+      <option value="high">높음</option>
+    </select><br>
+    <button type="submit">목표 설정</button>
+  </form>
+
+  <script>
+    const form = document.getElementById("goalForm");
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const json = Object.fromEntries(formData.entries());
+
+      const res = await fetch("http://http://100.74.19.94:8000/goal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(json)
+      });
+
+      const result = await res.json();
+      alert("🎉 목표 설정 완료: " + JSON.stringify(result));
+    }
+  </script>
+</body>
+</html>
