@@ -36,11 +36,25 @@ def upload_meal(meal: Meal):
     return {"message": f"{meal.type} 등록 완료", "meal": meal}
 
 
+from services.calorie import calculate_nutrition
+
 @app.get("/summary")
 def get_summary():
     if not user_goal:
         raise HTTPException(status_code=400, detail="목표가 먼저 설정되어야 합니다.")
+
+    today_meals = [m for m in meal_log if str(m.date) == str(date.today())]
+    
+    all_items = []
+    for m in today_meals:
+        all_items.extend(m.items)
+
+    total_nutrition = calculate_nutrition(all_items)
+    remaining_kcal = user_goal["current_weight"] * 30 - total_nutrition["kcal"]  # 단순 계산식 예시
+
     return {
         "goal": user_goal,
-        "meals_today": [m for m in meal_log if str(m.date) == str(date.today())]
+        "nutrition_total": total_nutrition,
+        "remaining_kcal": remaining_kcal,
+        "meals": today_meals
     }
