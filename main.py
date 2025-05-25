@@ -27,7 +27,7 @@ meal_log: List[Meal] = []
 
 # ===== API 엔드포인트 =====
 
-app.mount("/", StaticFiles(directory="client", html=True), name="client")
+app.mount("/", StaticFiles(directory="static", html=True), name="client")
 
 @app.post("/goal")
 def set_goal(goal: Goal):
@@ -41,6 +41,13 @@ def upload_meal(meal: Meal):
     meal_log.append(meal)
     return {"message": f"{meal.type} 등록 완료", "meal": meal}
 
+@app.delete("/meal/{idx}")
+def delete_meal(idx: int):
+    try:
+        deleted = meal_log.pop(idx)
+        return {"message": f"{deleted.type} 식사를 삭제했습니다."}
+    except IndexError:
+        raise HTTPException(status_code=404, detail="해당 인덱스의 식사가 없습니다.")
 
 
 @app.get("/summary")
