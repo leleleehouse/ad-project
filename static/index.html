@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>다이어트 보조 시스템</title>
+  <link rel="icon" href="/favicon.ico" />
 </head>
 <body>
   <h1>🎯 목표 설정</h1>
@@ -26,7 +27,7 @@
       const formData = new FormData(form);
       const json = Object.fromEntries(formData.entries());
 
-      const res = await fetch("http://http://100.74.19.94:8000/goal", {
+      const res = await fetch("http://100.74.19.94:8000/goal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(json)
