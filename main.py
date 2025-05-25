@@ -2,7 +2,11 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict
 from datetime import date
-
+import json
+import re
+from services.calorie import calculate_nutrition
+from services.recommender import recommend_snacks
+from fastapi.staticfiles import StaticFiles
 app = FastAPI()
 
 # ===== 데이터 모델 =====
@@ -23,6 +27,8 @@ meal_log: List[Meal] = []
 
 # ===== API 엔드포인트 =====
 
+app.mount("/", StaticFiles(directory="client", html=True), name="client")
+
 @app.post("/goal")
 def set_goal(goal: Goal):
     global user_goal
@@ -36,7 +42,6 @@ def upload_meal(meal: Meal):
     return {"message": f"{meal.type} 등록 완료", "meal": meal}
 
 
-from services.calorie import calculate_nutrition
 
 @app.get("/summary")
 def get_summary():
@@ -58,3 +63,12 @@ def get_summary():
         "remaining_kcal": remaining_kcal,
         "meals": today_meals
     }
+
+with open("data/food_db.json", "r", encoding="utf-8") as f:
+    food_data = json.load(f)["records"]
+    
+@app.get("/recommend/snacks")
+def get_snacks():
+    if not user_goal:
+        raise HTTPException(status_code=400, detail="목표가 설정되지 않았습니다.")
+    return recommend_snacks(user_goal, meal_log)
