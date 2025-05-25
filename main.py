@@ -37,7 +37,6 @@ meal_log: List[Meal] = []
 
 # ===== API 엔드포인트 =====
 
-app.mount("/", StaticFiles(directory="static", html=True), name="client")
 
 @app.post("/goal")
 def set_goal(goal: Goal):
@@ -89,3 +88,5 @@ def get_snacks():
     if not user_goal:
         raise HTTPException(status_code=400, detail="목표가 설정되지 않았습니다.")
     return recommend_snacks(user_goal, meal_log)
+
+app.mount("/", StaticFiles(directory="static", html=True), name="client")
