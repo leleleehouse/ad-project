@@ -39,6 +39,10 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/")
+def health_check():
+    return {"message": "FastAPI is running on Render!"}
+
 @app.on_event("startup")
 def on_startup():
     print("애플리케이션 시작...")
