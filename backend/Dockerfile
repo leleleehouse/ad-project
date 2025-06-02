@@ -18,4 +18,5 @@ WORKDIR /app/backend
 EXPOSE 10000  # optional but recommended
 
 # 🔥 포트를 고정하지 말고 환경변수로 설정
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT --log-level debug"]
+

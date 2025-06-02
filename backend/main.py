@@ -15,6 +15,8 @@ from services.vector_search import get_vector_db
 from dotenv import load_dotenv
 import os
 
+print("✅ FastAPI main.py 로드 성공")
+
 # .env 파일 로드 (main.py에서도 로드하여 다른 환경변수 사용 가능)
 load_dotenv()
 
