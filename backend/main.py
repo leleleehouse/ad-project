@@ -4,15 +4,16 @@ from typing import List, Dict
 from datetime import date
 import json
 import re
-from services.calorie import calculate_nutrition
-from services.recommender import recommend_snacks
+from .services.calorie import calculate_nutrition
+from .services.recommender import recommend_snacks
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database.db import SessionLocal, engine, Base
-from models.models import Goal as DBGoal, Meal as DBMeal
-from services.vector_search import get_vector_db
+from .database.db import SessionLocal, engine, Base
+from .models.models import Goal as DBGoal, Meal as DBMeal
+from .services.vector_search import get_vector_db
 from dotenv import load_dotenv
+import os
 
 # .env 파일 로드 (main.py에서도 로드하여 다른 환경변수 사용 가능)
 load_dotenv()
@@ -218,8 +219,8 @@ def search_foods_api(query: str, db_session: Session = Depends(get_db)):
         print(f"Error during food search: {e}")
         raise HTTPException(status_code=500, detail="음식 검색 중 오류가 발생했습니다.")
 
-with open("data/food_db.json", "r", encoding="utf-8") as f:
-    food_data = json.load(f)["records"]
+# with open("data/food_db.json", "r", encoding="utf-8") as f: # 주석 처리 또는 삭제 권장
+#     food_data = json.load(f)["records"]                   # 이 데이터는 calorie.py 또는 vector_search.py 에서 관리
     
 @app.get("/recommend/snacks")
 def get_snacks(db: Session = Depends(get_db)):
@@ -250,4 +251,16 @@ def get_snacks(db: Session = Depends(get_db)):
     
     return recommend_snacks(goal_dict, meal_log)
 
-app.mount("/", StaticFiles(directory="static", html=True), name="client")
+# 현재 main.py 파일의 디렉토리 (backend/)
+_BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+# 프로젝트 루트 디렉토리 (ad-project/)
+_PROJECT_ROOT = os.path.dirname(_BACKEND_DIR)
+# 프론트엔드 빌드 디렉토리 경로
+_FRONTEND_BUILD_DIR = os.path.join(_PROJECT_ROOT, "frontend", "build") # "build" 또는 실제 빌드 디렉토리명
+
+# 정적 파일 마운트
+if os.path.exists(_FRONTEND_BUILD_DIR):
+    app.mount("/", StaticFiles(directory=_FRONTEND_BUILD_DIR, html=True), name="client")
+    print(f"Serving static files from: {_FRONTEND_BUILD_DIR}")
+else:
+    print(f"Static files directory not found: {_FRONTEND_BUILD_DIR}. Frontend will not be served by FastAPI.")

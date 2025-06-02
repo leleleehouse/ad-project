@@ -1,10 +1,28 @@
 import json
 import re
 from typing import List
+import os # os 모듈 임포트
 
 # === 데이터 로드 ===
-with open("data/food_db.json", "r", encoding="utf-8") as f:
-    food_data = json.load(f)["records"]
+# recommender.py 파일의 현재 위치를 기준으로 backend/data/food_db.json 경로 설정
+_SERVICE_DIR = os.path.dirname(os.path.abspath(__file__)) # backend/services/
+_BACKEND_DIR = os.path.dirname(_SERVICE_DIR) # backend/
+FOOD_DB_JSON_PATH = os.path.join(_BACKEND_DIR, "data", "food_db.json")
+
+food_data = [] # 오류 발생 대비 초기화
+try:
+    with open(FOOD_DB_JSON_PATH, "r", encoding="utf-8") as f:
+        food_data_loaded = json.load(f)
+    if isinstance(food_data_loaded, dict) and "records" in food_data_loaded:
+        food_data = food_data_loaded["records"]
+    elif isinstance(food_data_loaded, list):
+        food_data = food_data_loaded # 파일 자체가 레코드 리스트인 경우
+    else:
+        print(f"경고: {FOOD_DB_JSON_PATH} (recommender.py) 파일의 형식이 예상과 다릅니다.")
+except FileNotFoundError:
+    print(f"치명적 오류: 데이터 파일 '{FOOD_DB_JSON_PATH}' (recommender.py)을(를) 찾을 수 없습니다.")
+except json.JSONDecodeError:
+    print(f"치명적 오류: 데이터 파일 '{FOOD_DB_JSON_PATH}' (recommender.py)이(가) 올바른 JSON 형식이 아닙니다.")
 
 # === 문자열 정규화 함수 ===
 def normalize(text: str) -> str:
