@@ -3,7 +3,7 @@
 import json
 import os
 import re
-from backend.services.vector_search import get_vector_db
+from services.vector_search import get_vector_db
 
 def safe_float(val):
     try:
