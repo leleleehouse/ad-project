@@ -9,17 +9,24 @@
 - Node.js (버전 16 이상 권장)
 - npm (Node.js와 함께 설치됨) 또는 yarn
 
-### 백엔드 서버 실행
+### 백엔드 서버
 
-프론트엔드를 실행하기 전에 백엔드 FastAPI 서버가 실행 중이어야 합니다.
+이 프론트엔드 애플리케이션은 백엔드 API와 통신합니다.
+- **배포된 백엔드 서버 주소:** `https://ad-project-svq2.onrender.com`
+  - 프론트엔드는 기본적으로 이 주소를 사용하여 API 요청을 보냅니다.
 
+**로컬에서 백엔드 서버를 직접 실행하고 싶은 경우 (선택 사항):**
+FastAPI 백엔드 서버를 로컬에서 실행할 수 있습니다.
 ```bash
 # ad-project 루트 디렉토리에서 실행
 cd ../backend # 또는 백엔드 폴더 경로
+# 필요한 경우 가상환경 활성화
+# source venv/bin/activate 
 python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
+이 경우, 로컬 테스트를 위해 `frontend/src/services/api.js` 파일의 `API_URL`을 일시적으로 `http://127.0.0.1:8000`으로 변경해야 할 수 있습니다.
 
-### 프론트엔드 실행
+### 프론트엔드 실행 (로컬 개발)
 
 1.  **의존성 설치:**
     `frontend` 디렉토리로 이동한 후 다음 명령어를 실행합니다.
@@ -54,8 +61,11 @@ python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ## API 통신
 
 -   `src/services/api.js` 파일에서 백엔드 API와의 통신을 관리합니다.
--   개발 중에는 `package.json`의 `proxy` 설정을 통해 API 요청이 백엔드 서버(`http://127.0.0.1:8000`)로 전달됩니다.
--   배포 시에는 `api.js` 파일 내의 `API_URL`을 실제 백엔드 서버 주소로 변경해야 할 수 있습니다.
+-   애플리케이션은 설정된 `API_URL` (현재 `https://ad-project-svq2.onrender.com`)을 사용하여 모든 API 요청을 백엔드 서버로 보냅니다.
+
+## 배포
+`https://my-flavourtie-frontend.vercel.app/`
+(프론트엔드 배포 관련 정보를 여기에 추가할 수 있습니다. 예: "이 프론트엔드 애플리케이션은 Vercel을 통해 배포됩니다.")
 
 ## 사용된 주요 라이브러리
 

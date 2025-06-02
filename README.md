@@ -60,12 +60,14 @@
     - OpenAI Vision API 또는 자체 이미지 분류 모델 (식단 사진 분석용)
 - **API 통신:** RESTful API
 - **서버:** Uvicorn
-- **배포 환경:** 라즈베리파이 (초기 MVP 및 개발 환경)
+- **배포 환경:** 라즈베리파이 (초기 MVP 및 개발 환경) <- 처음 적용 
+- **배포 환경:** Render.com (API 서버: `https://ad-project-svq2.onrender.com`) <- 나중 적용
 
 ### 프론트엔드 (Frontend)
 
 - **언어/프레임워크:** JavaScript, React
 - **스타일링:** Tailwind CSS, CSS
+- **배포 환경:** Vercel (애플리케이션: `https://my-flavourtie-frontend.vercel.app/`)
 
 ### 기타
 
@@ -77,9 +79,13 @@
 
 - Python (3.8 이상 권장) 및 pip
 - Node.js (16.x 이상 권장) 및 npm 또는 yarn
-- (필요시) Git LFS 설치
+- Git LFS 설치 (백엔드 데이터 파일 관리에 필요)
 
 ### 1. 백엔드 (Backend) 설정 및 실행
+
+백엔드 API 서버는 Render.com에 배포되어 운영 중입니다: `https://ad-project-svq2.onrender.com`
+
+**로컬에서 백엔드 서버를 직접 실행하고 싶은 경우:**
 
 ```bash
 # 1. 프로젝트 클론 (이미 진행했다면 생략)
@@ -89,21 +95,26 @@
 # 2. 백엔드 디렉토리로 이동
 cd backend
 
-# 3. 가상환경 생성 및 활성화 (권장)
+# 3. Git LFS 설정 확인 및 파일 다운로드 (필수)
+# Git LFS가 설치되어 있어야 하며, clone 시 LFS 파일들이 자동으로 받아지지 않았다면 수동으로 pull 필요
+# git lfs install # 저장소당 한번만 실행
+# git lfs pull
+
+# 4. 가상환경 생성 및 활성화 (권장)
 python -m venv venv
 source venv/bin/activate  # macOS/Linux
-# venv\\Scripts\\activate    # Windows
+# venv\Scripts\activate    # Windows
 
-# 4. 필요한 라이브러리 설치
-pip install -r requirements.txt  # requirements.txt 파일이 있다면. 없다면 주요 라이브러리 명시:
-# pip install fastapi uvicorn sqlalchemy python-dotenv sentence-transformers faiss-cpu numpy
+# 5. 필요한 라이브러리 설치
+pip install -r requirements.txt
 
-# 5. 환경 변수 설정 (필요한 경우)
+# 6. 환경 변수 설정 (필요한 경우)
 # .env 파일을 backend 디렉토리에 생성하고 필요한 환경 변수(예: 데이터베이스 경로 등)를 설정합니다.
 
-# 6. 백엔드 서버 실행
-# food_db.json 파일이 backend/data/ 디렉토리에 있는지 확인하세요.
-# 처음 실행 시 Faiss 인덱스 빌드 시간이 소요될 수 있습니다.
+# 7. 백엔드 서버 실행
+# food_db.json, food_faiss.index, food_faiss.meta 파일이 backend/data/ 디렉토리에 있는지 확인하세요.
+# (Git LFS를 통해 관리됨)
+# 서버는 미리 빌드된 Faiss 인덱스를 로드합니다.
 python -m uvicorn main:app --reload
 ```
 기본적으로 `http://127.0.0.1:8000` 에서 실행됩니다.
