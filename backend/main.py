@@ -25,6 +25,7 @@ load_dotenv()
 # Base.metadata.create_all(bind=engine) # <- 이 줄은 init_db() 내부로 이동 또는 삭제
 
 app = FastAPI()
+PORT = int(os.environ.get("PORT", 4000))
 
 app.add_middleware(
     CORSMiddleware,
