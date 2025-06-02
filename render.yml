@@ -1,0 +1,33 @@
+# render.yaml
+services:
+  - type: web
+    name: my-flavourtie-app
+    env: docker
+
+    # Dockerfile이 루트(./)에 있기 때문에 아래 경로 지정
+    dockerfilePath: ./Dockerfile
+    rootDir: ./  # or 생략 가능 (기본값이 루트)
+
+    region: oregon
+    plan: free
+
+    # buildCommand, startCommand은 Dockerfile 내부를 사용하므로 빈 문자열로 둠
+    buildCommand: ""
+    startCommand: ""
+
+    envVars:
+      - key: RENDER_DISK_MOUNT_PATH
+        value: /srv/disk_data
+      - key: PORT
+        value: "10000"
+
+    disks:
+      - name: my-persistent-disk
+        mountPath: /srv/disk_data
+        sizeGB: 1
+
+    autoDeploy: yes
+    branch: main
+
+    # (선택) healthCheckPath를 "/"로 지정하고 싶다면 fastapi에 "/" 엔드포인트가 있어야 함
+    # healthCheckPath: /
