@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>식사 등록</title>
+</head>
+<body>
+  <h1>🍚 식사 등록</h1>
+  <form id="mealForm">
+    날짜: <input type="date" name="date" required><br><br>
+
+    식사 종류:
+    <select name="type">
+      <option value="breakfast">아침</option>
+      <option value="lunch">점심</option>
+      <option value="dinner">저녁</option>
+      <option value="snack">간식</option>
+    </select><br><br>
+
+    음식들 (쉼표로 구분):<br>
+    <textarea name="items" rows="3" cols="30" placeholder="예: 닭가슴살, 현미밥 1공기" required></textarea><br><br>
+
+    <button type="submit">식사 등록</button>
+  </form>
+
+  <script>
+    // const API_BASE = "http://100.74.19.94:8000";  // ✅ 공통 경로 상단에 선언
+    const API_BASE = "http://127.0.0.1:8000";
+    const form = document.getElementById("mealForm");
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const itemsText = formData.get("items");
+      const itemsList = itemsText.split(",").map(x => x.trim());
+
+      const data = {
+        date: formData.get("date"),
+        type: formData.get("type"),
+        items: itemsList
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/meal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error("서버 오류");
+
+        const result = await res.json();
+        alert("✅ 등록 완료: " + JSON.stringify(result));
+        window.location.href = "/recommend.html";  // ✅ 절대경로 이동
+      } catch (err) {
+        console.error(err);
+        alert("❌ 식사 등록 실패: 서버에 연결할 수 없습니다.");
+      }
+    };
+  </script>
+</body>
+</html>

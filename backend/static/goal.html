@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>다이어트 보조 시스템</title>
+  <link rel="icon" href="/favicon.ico" />
+</head> 
+<body>
+  <h1>🎯 목표 설정</h1>
+  <form id="goalForm">
+    현재 체중: <input type="number" name="current_weight" step="0.1" required><br><br>
+    목표 체중: <input type="number" name="target_weight" step="0.1" required><br><br>
+    기간(일): <input type="number" name="period_days" required><br><br>
+    활동량: 
+    <select name="activity_level">
+      <option value="low">낮음</option>
+      <option value="medium" selected>보통</option>
+      <option value="high">높음</option>
+    </select><br><br>
+    <button type="submit">목표 설정</button>
+  </form>
+
+  <script>
+    // const API_BASE = "http://100.74.19.94:8000";  // ✅ 경로 관리하기 좋게 변수로 빼기
+    const API_BASE = "http://127.0.0.1:8000";
+    const form = document.getElementById("goalForm");
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const json = Object.fromEntries(formData.entries());
+
+      // 문자열 -> 숫자로 형변환 (명시적으로)
+      json.current_weight = parseFloat(json.current_weight);
+      json.target_weight = parseFloat(json.target_weight);
+      json.period_days = parseInt(json.period_days);
+
+      try {
+        const res = await fetch(`${API_BASE}/goal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(json)
+        });
+
+        if (!res.ok) throw new Error("서버 오류");
+
+        const result = await res.json();
+        alert("🎉 목표 설정 완료!\n" + JSON.stringify(result, null, 2));
+
+        // ✅ 설정 후 자동 이동
+        window.location.href = "/meal.html";
+      } catch (err) {
+        console.error(err);
+        alert("❌ 목표 설정 실패: 네트워크 또는 서버 오류");
+      }
+    };
+  </script>
+</body>
+</html>

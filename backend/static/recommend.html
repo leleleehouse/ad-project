@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>식사 요약 및 간식 추천</title>
+</head>
+<body>
+  <h1>📊 오늘의 식사 요약</h1>
+  <button onclick="loadSummary()">/summary 불러오기</button>
+  <table border="1" id="summaryTable" style="margin-top: 1rem; display: none;">
+    <thead>
+      <tr>
+        <th>칼로리(kcal)</th>
+        <th>단백질(g)</th>
+        <th>지방(g)</th>
+        <th>탄수화물(g)</th>
+        <th>나트륨(mg)</th>
+        <th>칼륨(mg)</th>
+        <th>인(mg)</th>
+      </tr>
+    </thead>
+    <tbody id="summaryBody"></tbody>
+  </table>
+
+  <h2 style="margin-top: 2rem;">🍱 저장된 식사 목록</h2>
+  <ul id="mealList"></ul>
+
+  <h2 style="margin-top: 2rem;">🍪 간식 추천</h2>
+  <button onclick="loadSnacks()">/recommend/snacks 호출</button>
+  <ul id="snackList" style="margin-top: 1rem;"></ul>
+
+  <script>
+    //const API_BASE = "http://100.74.19.94:8000";  // 라즈베리파이 서버 IP
+    const API_BASE = "http://127.0.0.1:8000"; 
+    async function loadSummary() {
+      try {
+        const res = await fetch(`${API_BASE}/summary`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        const data = await res.json();
+        const nutrition = data.nutrition_total;
+
+        const row = `
+          <tr>
+            <td>${nutrition.kcal.toFixed(1)}</td>
+            <td>${nutrition.protein.toFixed(1)}</td>
+            <td>${nutrition.fat?.toFixed(1) || 0}</td>
+            <td>${nutrition.carbs?.toFixed(1) || 0}</td>
+            <td>${nutrition.sodium?.toFixed(1) || 0}</td>
+            <td>${nutrition.potassium?.toFixed(1) || 0}</td>
+            <td>${nutrition.phosphorus?.toFixed(1) || 0}</td>
+          </tr>`;
+          
+        document.getElementById("summaryBody").innerHTML = row;
+        document.getElementById("summaryTable").style.display = "table";
+
+        // 식사 목록 렌더링
+        const meals = data.meals || [];
+        if (meals.length === 0) {
+          document.getElementById("mealList").innerHTML = "<li>저장된 식사가 없습니다.</li>";
+        } else {
+          document.getElementById("mealList").innerHTML = meals.map((m, idx) => {
+            const foodList = m.items.join(", ");
+            return `<li>${m.date} - ${m.type}: ${foodList} <button onclick="deleteMeal(${idx})">삭제</button></li>`;
+          }).join("");
+        }
+
+      } catch (error) {
+        console.error('Error loading summary:', error);
+        document.getElementById("mealList").innerHTML = "<li>❌ 식사 요약을 불러오는 중 오류가 발생했습니다.</li>";
+      }
+    }
+
+    async function deleteMeal(index) {
+      try {
+        const res = await fetch(`${API_BASE}/meal/${index}`, {
+          method: "DELETE"
+        });
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        const result = await res.json();
+        alert(result.message);
+        loadSummary();
+      } catch (error) {
+        console.error('Error deleting meal:', error);
+        alert('❌ 식사 삭제 중 오류가 발생했습니다.');
+      }
+    }
+
+    async function loadSnacks() {
+      try {
+        const res = await fetch(`${API_BASE}/recommend/snacks`);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+        const data = await res.json();
+        const snacks = data["추천 간식"] || [];
+
+        const list = snacks.map(item =>
+          `<li>${item["식품명"]} - ${item["에너지(kcal)"].toFixed(1)} kcal</li>`
+        ).join("");
+
+        document.getElementById("snackList").innerHTML = list;
+      } catch (error) {
+        console.error('Error loading snacks:', error);
+        document.getElementById("snackList").innerHTML = "<li>❌ 간식 추천을 불러오는 중 오류가 발생했습니다.</li>";
+      }
+    }
+
+    // ✅ 페이지 로드 시 요약 자동 호출
+    window.addEventListener('DOMContentLoaded', loadSummary);
+  </script>
+</body>
+</html>
