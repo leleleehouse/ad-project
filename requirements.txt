@@ -5,3 +5,4 @@ sqlalchemy
 sentence-transformers
 faiss-cpu
 numpy 
+python-dotenv
