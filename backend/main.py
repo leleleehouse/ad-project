@@ -47,11 +47,14 @@ def health_check():
 
 @app.on_event("startup")
 def on_startup():
-    print("애플리케이션 시작...")
-    Base.metadata.create_all(bind=engine) # 여기서 테이블 생성
-    print("데이터베이스 테이블 생성 완료 (또는 이미 존재).")
-    get_vector_db() 
-    print("애플리케이션 준비 완료.")
+    print("🚀 애플리케이션 시작 중...")
+    try:
+        Base.metadata.create_all(bind=engine)
+        print("✅ DB 테이블 생성 완료")
+        get_vector_db()
+        print("✅ 벡터 DB 초기화 완료")
+    except Exception as e:
+        print(f"❌ Startup 중 오류 발생: {e}")
 
 # ===== 데이터 모델 =====
 class Goal(BaseModel):
