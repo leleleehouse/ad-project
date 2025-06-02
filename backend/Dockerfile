@@ -41,7 +41,8 @@ WORKDIR /app/backend
 # Render 서비스 설정의 Start Command와 유사하게 맞춥니다.
 # Render가 PORT 환경변수를 주입하면 해당 포트를 사용하도록 합니다.
 # 기본적으로 $PORT는 Render에서 설정되며 10000번인 경우가 많습니다.
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+
 # 만약 Render에서 Start Command로 포트를 동적으로 할당한다면 (예: --port $PORT),
 # CMD는 uvicorn main:app --host 0.0.0.0 --port 8000 (또는 다른 고정 포트)로 두고,
 # Render의 Start Command 설정에서 $PORT를 사용하도록 할 수 있습니다.
