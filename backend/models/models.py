@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Float, Date, Text
-from backend.database.db import Base
+from database.db import Base
 
 class Goal(Base):
     __tablename__ = "goals"
