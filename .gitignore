@@ -1,1 +1,3 @@
-backend/data/*
+backend/data/food_faiss.index
+backend/data/food_faiss.meta
+backend/data/food_vector.pkl

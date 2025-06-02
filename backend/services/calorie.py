@@ -11,12 +11,32 @@ def safe_float(val):
     except:
         return 0.0
     
-# JSON 로딩 (절대경로 기준으로 안전하게 처리)
-with open("data/food_db.json", "r", encoding="utf-8") as f:
-    food_data = json.load(f)
+# --- food_db.json 경로 설정 ---
+# calorie.py 파일의 현재 위치를 기준으로 backend/data/food_db.json 경로 설정
+_SERVICE_DIR = os.path.dirname(os.path.abspath(__file__))
+_BACKEND_DIR_FROM_SERVICE = os.path.dirname(_SERVICE_DIR)
+FOOD_DB_JSON_PATH = os.path.join(_BACKEND_DIR_FROM_SERVICE, "data", "food_db.json")
 
-# ✅ 실제 음식 데이터는 "records" 안에 있음
-food_items = food_data["records"]
+# JSON 로딩
+food_items = [] # 오류 발생 시 빈 리스트로 사용하기 위해 초기화
+try:
+    with open(FOOD_DB_JSON_PATH, "r", encoding="utf-8") as f: # 수정된 경로 사용
+        food_data_loaded = json.load(f)
+    # food_db.json 파일이 최상위에 "records" 키를 가지고 그 값이 리스트인 경우를 처리
+    if isinstance(food_data_loaded, dict) and "records" in food_data_loaded:
+        food_items = food_data_loaded["records"]
+    # food_db.json 파일 자체가 음식 레코드 리스트인 경우도 처리
+    elif isinstance(food_data_loaded, list):
+        food_items = food_data_loaded
+    else:
+        print(f"경고: {FOOD_DB_JSON_PATH} 파일의 형식이 예상과 다릅니다. 'records' 키를 찾을 수 없거나 리스트 형식이 아닙니다.")
+        # food_items는 이미 빈 리스트로 초기화되어 있음
+except FileNotFoundError:
+    print(f"치명적 오류: 데이터 파일 '{FOOD_DB_JSON_PATH}'을(를) 찾을 수 없습니다. calorie.py가 정상 작동하지 않을 수 있습니다.")
+    # food_items는 이미 빈 리스트로 초기화되어 있음
+except json.JSONDecodeError:
+    print(f"치명적 오류: 데이터 파일 '{FOOD_DB_JSON_PATH}'이(가) 올바른 JSON 형식이 아닙니다.")
+    # food_items는 이미 빈 리스트로 초기화되어 있음
 
 # ✅ 필요한 값만 딕셔너리로 정리
 food_dict = {
@@ -98,16 +118,16 @@ def calculate_nutrition(items: list[str]) -> dict:
                 print(f"[VECTOR MATCH] '{item}' → '{match['name']}' (유사도: {match['score']:.3f})")
         else:
             not_found_items.append(item)
-            print(f"[NOT FOUND] '{item}' - 유사한 음식을 찾을 수 없습니다.")
+            print(f"[NOT FOUND VIA VECTOR] '{item}' - 벡터 DB에서 유사한 음식을 찾을 수 없습니다.")
 
     # 결과 요약 출력
     if found_items:
-        print(f"✅ 매칭된 음식: {len(found_items)}개")
+        print(f"✅ (Vector Search) 매칭된 음식: {len(found_items)}개")
     if not_found_items:
-        print(f"❌ 매칭 실패: {len(not_found_items)}개 - {not_found_items}")
+        print(f"❌ (Vector Search) 매칭 실패: {len(not_found_items)}개 - {not_found_items}")
 
     # 매칭 정보도 함께 반환
     total["matched_info"] = found_items
-    total["not_found"] = not_found_items
+    total["not_found_via_vector"] = not_found_items
     
     return total
