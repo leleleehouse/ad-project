@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 // 로컬 개발 시 백엔드 주소
-const API_URL = '/'; // package.json의 proxy 설정을 사용합니다.
+// const API_URL = '/'; // package.json의 proxy 설정을 사용합니다. - 더 이상 사용하지 않습니다.
 
-// 배포 시 실제 백엔드 주소 (필요시 수정)
-// const API_URL = 'http://your-raspberry-pi-ip:8000'; 
+// 배포 및 개발 시 실제 백엔드 주소
+const API_URL = 'https://ad-project-svq2.onrender.com'; 
 
 const apiClient = axios.create({
   baseURL: API_URL,
