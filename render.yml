@@ -1,0 +1,73 @@
+# render.yaml
+
+services:
+  - type: web # 웹 서비스 (FastAPI 백엔드 + React 프론트엔드 서빙)
+    name: my-flavourtie-app # Render 대시보드에 표시될 서비스 이름 (자유롭게 변경 가능)
+    env: docker # 또는 docker (Dockerfile을 사용한다면)
+    dockerfilePath: ./backend/Dockerfile
+    region: oregon # 또는 원하는 리전 (예: singapore, frankfurt 등)
+    plan: free # 또는 유료 플랜
+    
+    buildFilter: # 어떤 파일 변경 시 빌드를 트리거할지 (선택 사항)
+      paths:
+        - backend/**
+        - frontend/**
+        - render.yaml
+        - backend/requirements.txt # 루트의 requirements.txt (만약 backend/requirements.txt만 있다면 경로 수정)
+        - frontend/package.json # 루트의 package.json (만약 frontend/package.json만 있다면 경로 수정)
+        - frontend/package-lock.json # 또는 package-lock.json
+        - backend/Dockerfile
+
+    # 빌드 명령어:
+    # 1. Python 의존성 설치 (backend/requirements.txt 사용 가정)
+    # 2. 프론트엔드 빌드 (frontend 디렉토리 내에서 npm 사용 가정)
+    buildCommand: |
+      pip install -r backend/requirements.txt && \
+      cd frontend && \
+      npm install && \
+      npm run build && \
+      cd ..
+
+    # 시작 명령어 (FastAPI 서버 실행)
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+
+    # 환경 변수 그룹 (선택 사항, 여러 서비스에서 공통으로 사용할 경우)
+    envVars:
+        # Dockerfile 내에서 ARG나 ENV로 주입되지 않는, 런타임에 필요한 환경변수
+        - key: RENDER_DISK_MOUNT_PATH # vector_search.py 에서 사용할 영구 디스크 마운트 경로
+          value: /srv/disk_data
+        - key: PORT # Dockerfile 내의 CMD가 이 환경변수를 사용하여 uvicorn 실행 포트 지정 (예: 10000)
+          value: "10000" # Render는 이 서비스의 외부 $PORT와 Docker 내부의 이 PORT를 매핑함.
+                        # 문자열로 주는 것이 더 안전할 수 있음.
+
+    # 개별 환경 변수
+    # 여기에 필요한 환경 변수들을 추가합니다. (예: 데이터베이스 URL 등)
+    # .env 파일에 있는 내용 중 Render 환경에서 필요한 것들을 여기에 명시합니다.
+    # 예시:
+    # - key: DATABASE_URL 
+    #   value: sqlite:///./sql_app.db # 만약 다른 DB를 사용한다면 해당 URL
+    # - key: ANOTHER_ENV_VAR
+    #   value: its_value
+    # - key: PYTHON_VERSION # 특정 Python 버전 명시 (선택 사항)
+    #   value: 3.11.5
+    # - key: NODE_VERSION # 특정 Node.js 버전 명시 (선택 사항)
+    #   value: 18.17.0
+
+    # 디스크 설정 (Faiss 인덱스 및 food_db.json 저장용)
+    disks:
+      - name: my-persistent-disk # Render에서 생성한 디스크의 이름과 일치해야 함
+        mountPath: /srv/disk_data # 이전에 설정하신 마운트 경로
+        sizeGB: 1 # 디스크 크기 (필요에 따라 조절)
+
+    # 자동 배포 설정 (GitHub 연동 시)
+    autoDeploy: yes # main 브랜치에 푸시될 때마다 자동 배포 (또는 no)
+    branch: main # 배포할 브랜치 (또는 다른 브랜치)
+
+    # Health Check 경로 (선택 사항, 기본값은 /)
+    # healthCheckPath: /health # FastAPI에 해당 경로 엔드포인트가 있어야 함
+
+    # 헤더 설정 (선택 사항)
+    # headers:
+    #   - path: /*
+    #     name: X-Frame-Options
+    #     value: DENY
