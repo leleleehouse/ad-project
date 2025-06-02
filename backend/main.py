@@ -4,14 +4,14 @@ from typing import List, Dict
 from datetime import date
 import json
 import re
-from services.calorie import calculate_nutrition
-from services.recommender import recommend_snacks
+from backend.services.calorie import calculate_nutrition
+from backend.services.recommender import recommend_snacks
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database.db import SessionLocal, engine, Base
-from models.models import Goal as DBGoal, Meal as DBMeal
-from services.vector_search import get_vector_db
+from backend.database.db import SessionLocal, engine, Base
+from backend.models.models import Goal as DBGoal, Meal as DBMeal
+from backend.services.vector_search import get_vector_db
 from dotenv import load_dotenv
 import os
 
