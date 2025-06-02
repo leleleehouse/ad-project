@@ -2,14 +2,6 @@ fastapi
 uvicorn
 pydantic
 sqlalchemy
-
-# MySQL (SQLAlchemy용 드라이버)
-mysqlclient # 또는 pymysql
-
-# Vector Search & Embeddings
 sentence-transformers
-pinecone-client # FAISS 대신 Pinecone 사용
-
-# 기타
-numpy # vector_search.py 또는 다른 곳에서 필요할 수 있음
-python-dotenv # .env 파일에서 환경변수 로드용 (선택적이지만 권장) 
+faiss-cpu
+numpy 
